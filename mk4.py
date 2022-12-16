@@ -50,8 +50,7 @@ def has_subtitles(filename: str) -> None:
     result = subprocess.run(["ffmpeg", "-i", filename], capture_output=True, text=True)
 
     # Check if the file contains srts
-    if "Subtitle:" in result.stderr or "subtitle:" in result.stdout:
-        return True
+    return "Subtitle:" in result.stderr or "subtitle:" in result.stdout
 
 
 # Extract the srt file from the mkv file
