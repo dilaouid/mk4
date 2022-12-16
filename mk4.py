@@ -129,18 +129,18 @@ def process(filename: str) -> None:
 
 def main() -> int:
     # check if the user has passed a file
-    if (len(sys.argv) < 2):
+    if len(sys.argv) < 2:
         sys.exit(print_red("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
 
     # check if the user has passed the --help flag
-    if (sys.argv[1] == "--help"):
+    if sys.argv[1] == "--help":
         sys.exit(documentation())
 
     # check if all the files are valid mkv files
     for i in range(1, len(sys.argv)):
         
         # if the argument is a directory, recursively check all the mkv files in the directory
-        if (os.path.isdir(sys.argv[i])):
+        if os.path.isdir(sys.argv[i]):
             for root, dirs, files in os.walk(sys.argv[i]):
                 for file in files:
                     if (file.endswith(".mkv") or file.endswith(".MKV")):
@@ -152,11 +152,11 @@ def main() -> int:
             print("Checking file: " + filename + " ...")
 
             # check if the file exists
-            if (not os.path.exists(filename) or not os.path.isfile(filename) or not os.access(filename, os.R_OK)):
+            if not os.path.exists(filename) or not os.path.isfile(filename) or not os.access(filename, os.R_OK):
                 sys.exit(print_red("❌ {filename} does not exist"))
 
             # check if the file is a mkv file
-            if (not filename.endswith(".mkv") and not filename.endswith(".MKV")):
+            if not filename.endswith(".mkv") and not filename.endswith(".MKV"):
                 sys.exit(print_red("❌ {filename} is not a mkv file"))
 
             process(filename)
