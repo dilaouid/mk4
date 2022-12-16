@@ -1,3 +1,4 @@
+from pathlib import Path
 import sys
 import os
 import subprocess
@@ -17,24 +18,27 @@ def print_red(text: str) -> None:
 def get_file_name(filename: str) -> str:
     return os.path.splitext(filename)[0]
 
+# generate a random name for the srt file
+def get_subtitle_file() -> str:
+    return "subtitle-" + str(os.urandom(6).hex()) + ".srt"
+
 # Convert the mkv file to mp4 with the beautified srt file
-def convert_file(filename: str) -> None:
+def convert_file(filename: str, subtitles: str) -> None:
     print(f"    ⌛️ Converting file: \033[33m" + filename + "\033[0m to mp4 ...")
-    subtitles = get_file_name(filename) + ".srt"
-    output = get_file_name(filename) + "-mk4.mp4"
+    output = Path(get_file_name(filename) + "-mk4.mp4")
     subprocess.run([
         "ffmpeg",
         "-y",
         "-hide_banner",
-        "-v", "quiet",
+        "-v", "error",
         "-stats",
-        "-i", filename,
+        "-i", str(filename),
         "-vf", "subtitles=" + subtitles,
         "-c:v", "libx264",
         "-pix_fmt", "yuv420p",
         "-crf", config['FFMPEG']["CRF"],
         "-c:a", "aac",
-        output
+        str(output)
     ])
     os.remove(subtitles)
     print(f"    ✅ File: \033[33m" + filename + "\033[0m has been converted")
@@ -51,9 +55,8 @@ def has_subtitles(filename: str) -> None:
 
 
 # Extract the srt file from the mkv file
-def extract_srt(filename: str) -> None:
+def extract_srt(filename: str, subtitle_file: str) -> None:
     print(f"    ⌛️ Extracting srt from \033[33m" + filename + "\033[0m ...")
-    subtitle_file = get_file_name(filename) + ".srt"
     subprocess.run([
             "ffmpeg",
             "-y",
@@ -114,16 +117,16 @@ def remove_font_balise(subtitle_file: str) -> None:
 
 # process to the conversion from mkv to mp4
 def process(filename: str) -> None:
-    subtitle_file = get_file_name(filename) + ".srt"
+    subtitle_file = get_subtitle_file()
 
     if not has_subtitles(filename):
         print(f"    ❌ \033[33m" + filename + "\033[0m has no subtitles")
     else:
         print(f"    ✅ \033[33m" + filename + "\033[0m has subtitles")
-        extract_srt(filename)
+        extract_srt(filename, subtitle_file)
         remove_font_balise(subtitle_file)
         beautify_srt(subtitle_file)
-        convert_file(filename)
+        convert_file(filename, subtitle_file)
 
 def main() -> int:
     # check if the user has passed a file
@@ -136,18 +139,28 @@ def main() -> int:
 
     # check if all the files are valid mkv files
     for i in range(1, len(sys.argv)):
-        filename = sys.argv[i]
-        print("Checking file: " + filename + " ...")
+        
+        # if the argument is a directory, recursively check all the mkv files in the directory
+        if (os.path.isdir(sys.argv[i])):
+            for root, dirs, files in os.walk(sys.argv[i]):
+                for file in files:
+                    if (file.endswith(".mkv") or file.endswith(".MKV")):
+                        print("Checking file: " + file + " ...")
+                        process(os.path.join(root, file))
+        # otherwise, the argument is a file, so check if it is a valid mkv file and process it
+        else:
+            filename = str(Path(sys.argv[i]))
+            print("Checking file: " + filename + " ...")
 
-        # check if the file exists
-        if (not os.path.exists(filename) or not os.path.isfile(filename) or not os.access(filename, os.R_OK)):
-            sys.exit(print_red("❌ {filename} does not exist"))
+            # check if the file exists
+            if (not os.path.exists(filename) or not os.path.isfile(filename) or not os.access(filename, os.R_OK)):
+                sys.exit(print_red("❌ {filename} does not exist"))
 
-        # check if the file is a mkv file
-        if (not filename.endswith(".mkv") and not filename.endswith(".MKV")):
-            sys.exit(print_red("❌ {filename} is not a mkv file"))
+            # check if the file is a mkv file
+            if (not filename.endswith(".mkv") and not filename.endswith(".MKV")):
+                sys.exit(print_red("❌ {filename} is not a mkv file"))
 
-        process(filename)
+            process(filename)
 
     return 0
 
