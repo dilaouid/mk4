@@ -23,4 +23,4 @@ You only need to have ffmpeg installed in your system.
 - Improve the stdout to make it more dynamic
 - The `--help` flag
 
-Please enjoy !!
+*Please enjoy !!*
