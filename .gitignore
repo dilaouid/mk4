@@ -10,6 +10,9 @@ npm-debug.*
 *.orig.*
 web-build/
 
-
 # macOS
 .DS_Store
+
+*.mkv
+*.mp4
+*.srt
