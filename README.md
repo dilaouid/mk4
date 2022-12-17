@@ -1,6 +1,6 @@
 # mk4
 
-![preview](https://dilaou.id/assets/img/projects/mk4.jpg)
+![preview](https://pbs.twimg.com/media/FkISQIGWYAYLWpC?format=jpg&name=large)
 
 ## _I want it to be mp4_
 
