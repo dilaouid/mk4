@@ -22,10 +22,32 @@ def get_file_name(filename: str) -> str:
 def get_subtitle_file() -> str:
     return "subtitle-" + str(os.urandom(6).hex()) + ".srt"
 
-# Convert the mkv file to mp4 with the beautified srt file
+# Convert the mkv file to mp4 with the beautified srt file and select the audio track
 def convert_file(filename: str, subtitles: str) -> None:
     print(f"    ⌛️ Converting file: \033[33m" + filename + "\033[0m to mp4 ...")
+
+    # check if the mkv file have multiple audio tracks and ask the user which one to use
+    result = subprocess.run(["ffmpeg", "-i", filename], capture_output=True, text=True)
+    audio_tracks = [line for line in result.stderr.splitlines() if "Audio:" in line or "audio:" in line]
+    if len(audio_tracks) > 1:
+        print(f"    ⌛️ \033[33m" + filename + "\033[0m has multiple audio tracks, please select the one you want to use: ")
+        for i, line in enumerate(audio_tracks):
+            print(f"            \033[33m{i}\033[0m: {line}")
+        while True:
+            try:
+                selected_audio_track = int(input("    Please select the audio track you want to use: "))
+                if selected_audio_track < 0 or selected_audio_track >= len(audio_tracks):
+                    print_red("    ❌ Please select a valid audio track")
+                else:
+                    break
+            except ValueError:
+                print_red("    ❌ Please select a valid audio track")
+        audio_track = "0:a:" + str(selected_audio_track)
+    else:
+        audio_track = "0:a:0"
+    
     output = Path(get_file_name(filename) + "-mk4.mp4")
+    
     subprocess.run([
         "ffmpeg",
         "-y",
@@ -38,6 +60,8 @@ def convert_file(filename: str, subtitles: str) -> None:
         "-pix_fmt", "yuv420p",
         "-crf", config['FFMPEG']["CRF"],
         "-c:a", "aac",
+        "-map", audio_track,
+        "-map", "0:v:0",
         str(output)
     ])
     os.remove(subtitles)
