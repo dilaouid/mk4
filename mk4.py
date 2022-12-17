@@ -184,7 +184,7 @@ def beautify_srt(filename: str) -> None:
                     dialog += lines[line_num]
                     line_num += 1
                 # Add the font balises to the dialog and add it to the formatted lines list
-                formatted_line = "<font size='{}' face='{}'>{}</font>".format(config['FONT']["Size"], config["FONT"]["Name"], dialog)
+                formatted_line = "<font size=\"{}\" face=\"{}\">{}</font>".format(config['FONT']["Size"], config["FONT"]["Name"], dialog)
                 formatted_lines.append(formatted_line)
                 formatted_lines.append('\n\n')
             else:
