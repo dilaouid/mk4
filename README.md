@@ -21,6 +21,17 @@ OR
 py mk4.py --help
 ```
 
+You can also use the `-r` flag to delete the .mkv file (or files if it's a directory) you mentionned. Like this:
+```sh
+py mk4.py <file.mkv | directory> -r
+```
+
+It will delete only the one argument specified before the flag. So here:
+```sh
+py mk4.py movie.mkv -r episode.mkv
+```
+Only `movie.mkv` will be deleted after the conversion.
+
 ## Prerequisites
 You only need to have ffmpeg installed in your system.
 
