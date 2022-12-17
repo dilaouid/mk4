@@ -56,16 +56,54 @@ def has_subtitles(filename: str) -> None:
 # Extract the srt file from the mkv file
 def extract_srt(filename: str, subtitle_file: str) -> None:
     print(f"    ⌛️ Extracting srt from \033[33m" + filename + "\033[0m ...")
-    subprocess.run([
+
+    # check all the subtitles in the mkv file
+    result = subprocess.run(["ffmpeg", "-i", filename], capture_output=True, text=True)
+    subtitles = [line for line in result.stderr.splitlines() if "Subtitle:" in line or "subtitle:" in line]
+
+    # if there is more than one subtitle, ask the user which one to use for the mp4 video
+    if len(subtitles) > 1:
+        print(f"    ⌛️ \033[33m" + filename + "\033[0m has multiple subtitles, please select the one you want to use:")
+        # get the subtitles list
+        subtitles = [line for line in result.stderr.splitlines() if "Subtitle:" in line or "subtitle:" in line]
+
+        # print the subtitles list
+        for i, line in enumerate(subtitles):
+            print(f"            \033[33m{i}\033[0m: {line}")
+
+        # ask the user to select the subtitle
+        while True:
+            try:
+                selected_subtitle = int(input("    Please select the subtitle you want to use: "))
+                if selected_subtitle < 0 or selected_subtitle >= len(subtitles):
+                    print_red("    ❌ Please select a valid subtitle")
+                else:
+                    break
+            except ValueError:
+                print_red("    ❌ Please select a valid subtitle")
+
+        # extract the selected subtitle
+        subprocess.run([
             "ffmpeg",
             "-y",
             "-hide_banner",
             "-loglevel", "error",
             "-i", filename,
             "-c", "srt",
-            "-map", "0:s:0",
+            "-map", "0:s:" + str(selected_subtitle),
             subtitle_file
-    ])
+        ])
+    else:
+        subprocess.run([
+                "ffmpeg",
+                "-y",
+                "-hide_banner",
+                "-loglevel", "error",
+                "-i", filename,
+                "-c", "srt",
+                "-map", "0:s:0",
+                subtitle_file
+        ])
 
 # Beautify the srt file by adding font balises
 def beautify_srt(filename: str) -> None:
