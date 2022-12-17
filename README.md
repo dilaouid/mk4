@@ -12,13 +12,13 @@ To configure the mk4 script, you need to edit the config variables in `config.in
 
 ### _Launch script_
 ```sh
-mk4.py <file.mkv | directory> [<file.mkv | directory> ...]
+py mk4.py <file.mkv | directory> [<file.mkv | directory> ...]
 ```
 
 OR
 
 ```sh
-mk4.py --help
+py mk4.py --help
 ```
 
 ## Prerequisites
