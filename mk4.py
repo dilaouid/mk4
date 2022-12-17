@@ -14,6 +14,21 @@ def documentation() -> None:
 def print_red(text: str) -> None:
     print(f"\033[31m{text}\033[0m")
 
+# manage the -r flag
+def delete(filename: str, i: int) -> None:
+    if i == 1:
+        sys.exit(print_red("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
+    else:
+        # delete the file if it's a valid mkv file
+        if os.path.isfile(filename) and (filename.endswith(".mkv") or filename.endswith(".MKV")):
+            os.remove(filename)
+        # delete every mkv inside the preceding directory if it's a valid directory
+        elif os.path.isdir(filename):
+            for root, dirs, files in os.walk(filename):
+                for file in files:
+                    if (file.endswith(".mkv") or file.endswith(".MKV")):
+                        os.remove(os.path.join(root, file))
+
 # Get the file name without the extension
 def get_file_name(filename: str) -> str:
     return os.path.splitext(filename)[0]
@@ -198,9 +213,14 @@ def main() -> int:
     if sys.argv[1] == "--help":
         sys.exit(documentation())
 
-    # check if all the files are valid mkv files
     for i in range(1, len(sys.argv)):
-        
+        # if the argument is a -r flag, delete the previous file and continue
+        if sys.argv[i] == "-r":
+            print(f"    ⌛️ Deleting: \033[33m" + sys.argv[i-1] + "\033[0m ...")
+            delete(sys.argv[i-1], i)
+            print(f"    🗑️ \033[33m" + filename + "\033[0m has been deleted!")
+            continue
+
         # if the argument is a directory, recursively check all the mkv files in the directory
         if os.path.isdir(sys.argv[i]):
             for root, dirs, files in os.walk(sys.argv[i]):
@@ -222,7 +242,6 @@ def main() -> int:
                 sys.exit(print_red("❌ {filename} is not a mkv file"))
 
             process(filename)
-
     return 0
 
 if __name__ == '__main__':
