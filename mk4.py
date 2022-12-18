@@ -77,7 +77,7 @@ def convert_file(filename: str, subtitles: str) -> None:
             "-stats",
             "-i", str(filename),
             "-vf", "subtitles=" + subtitles,
-            "-c:v", "libx264",
+            "-c:v", config['FFMPEG']["ENCODER"],
             "-pix_fmt", "yuv420p",
             "-crf", config['FFMPEG']["CRF"],
             "-c:a", "aac",
