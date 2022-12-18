@@ -15,20 +15,13 @@ def print_red(text: str) -> None:
     print(f"\033[31m{text}\033[0m")
 
 # manage the -r flag
-def delete(filename: str, i: int) -> None:
+def delete_mkv(filename: str) -> None:
+    print(f"    ⌛️ Deleting: \033[33m" + filename + "\033[0m ...")
     try:
-        if i == 1:
-            sys.exit(print_red("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
-        else:
-            # delete the file if it's a valid mkv file
-            if os.path.isfile(filename) and (filename.endswith(".mkv") or filename.endswith(".MKV")):
-                os.remove(filename)
-            # delete every mkv inside the preceding directory if it's a valid directory
-            elif os.path.isdir(filename):
-                for root, dirs, files in os.walk(filename):
-                    for file in files:
-                        if (file.endswith(".mkv") or file.endswith(".MKV")):
-                            os.remove(os.path.join(root, file))
+        # delete the file if it's a valid mkv file
+        if os.path.isfile(filename) and (filename.endswith(".mkv") or filename.endswith(".MKV")):
+            os.remove(filename)
+            print(f"    🗑️ \033[33m" + filename + "\033[0m has been deleted!")
     except Exception as e:
         print_red("❌ Failed to delete file: " + filename)
         print_red("❌ Error: " + str(e))
@@ -220,7 +213,7 @@ def remove_font_balise(subtitle_file: str) -> None:
         exit(1)
 
 # process to the conversion from mkv to mp4
-def process(filename: str) -> None:
+def process(filename: str, delete: bool) -> None:
     subtitle_file = get_subtitle_file()
 
     if not has_subtitles(filename):
@@ -232,6 +225,8 @@ def process(filename: str) -> None:
             remove_font_balise(subtitle_file)
             beautify_srt(subtitle_file)
             convert_file(filename, subtitle_file)
+            if delete:
+                delete_mkv(filename)
         except Exception as e:
             print_red("    ❌ Failed to process file: " + filename)
             print_red("    ❌ Error: " + str(e))
@@ -247,14 +242,14 @@ def main() -> int:
         sys.exit(documentation())
 
     for i in range(1, len(sys.argv)):
-        # if the argument is a -r flag, delete the previous file and continue
+
+        # if the argument is a -r flag, ignore it
+        if sys.argv[i] == "-r":
+            continue
 
         try:
-            if sys.argv[i] == "-r":
-                print(f"    ⌛️ Deleting: \033[33m" + sys.argv[i-1] + "\033[0m ...")
-                delete(sys.argv[i-1], i)
-                print(f"    🗑️ \033[33m" + sys.argv[i-1] + "\033[0m has been deleted!")
-                continue
+            # check if the next argument is a -r flag
+            delete = sys.argv[i+1] == "-r"
 
             # if the argument is a directory, recursively check all the mkv files in the directory
             if os.path.isdir(sys.argv[i]):
@@ -262,7 +257,7 @@ def main() -> int:
                     for file in files:
                         if (file.endswith(".mkv") or file.endswith(".MKV")):
                             print("Checking file: " + file + " ...")
-                            process(os.path.join(root, file))
+                            process(os.path.join(root, file), delete)
             # otherwise, the argument is a file, so check if it is a valid mkv file and process it
             else:
                 filename = str(Path(sys.argv[i]))
@@ -270,13 +265,13 @@ def main() -> int:
 
                 # check if the file exists
                 if not os.path.exists(filename) or not os.path.isfile(filename) or not os.access(filename, os.R_OK):
-                    sys.exit(print_red("❌ {filename} does not exist"))
+                    sys.exit(print_red("❌ "+filename+" does not exist"))
 
                 # check if the file is a mkv file
                 if not filename.endswith(".mkv") and not filename.endswith(".MKV"):
-                    sys.exit(print_red("❌ {filename} is not a mkv file"))
+                    sys.exit(print_red("❌ "+filename+" is not a mkv file"))
 
-                process(filename)
+                process(filename, delete)
         except Exception as e:
             print_red("❌ Failed to process file: " + sys.argv[i])
             print_red("❌ Error: " + str(e))
