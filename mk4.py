@@ -254,9 +254,9 @@ def main() -> int:
             continue
 
         try:
-            # check if the next argument is a -r flag
-            delete = sys.argv[i+1] == "-r"
-
+            # check if the next argument is a -r
+            delete = i + 1 < len(sys.argv) and sys.argv[i + 1] == "-r"
+         
             # if the argument is a directory, recursively check all the mkv files in the directory
             if os.path.isdir(sys.argv[i]):
                 for root, dirs, files in os.walk(sys.argv[i]):
