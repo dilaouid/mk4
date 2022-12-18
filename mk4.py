@@ -253,7 +253,7 @@ def main() -> int:
             if sys.argv[i] == "-r":
                 print(f"    ⌛️ Deleting: \033[33m" + sys.argv[i-1] + "\033[0m ...")
                 delete(sys.argv[i-1], i)
-                print(f"    🗑️ \033[33m" + filename + "\033[0m has been deleted!")
+                print(f"    🗑️ \033[33m" + sys.argv[i-1] + "\033[0m has been deleted!")
                 continue
 
             # if the argument is a directory, recursively check all the mkv files in the directory
