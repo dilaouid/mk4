@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 import sys
 import os
 import subprocess
@@ -233,6 +234,11 @@ def process(filename: str, delete: bool) -> None:
             exit(1)
 
 def main() -> int:
+
+    # check if ffmpeg is installed
+    if not shutil.which("ffmpeg"):
+        sys.exit(print_red("❌ Ffmpeg is not installed, please install it before using mk4.py"))
+
     # check if the user has passed a file
     if len(sys.argv) < 2:
         sys.exit(print_red("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
