@@ -2,8 +2,8 @@ from pathlib import Path
 import shutil
 import sys
 import os
-from utils import print_red
-from conversion import process
+from lib.utils import print_red
+from lib.conversion import process
 
 def documentation() -> None:
     print("documentation todo :) :) :) :) :) ;)")

@@ -1,7 +1,7 @@
 import re
 import subprocess
-from utils import print_red
-from config import config
+from lib.utils import print_red
+from lib.config import config
 
 # Check if the file has subtitles
 def has_subtitles(filename: str) -> None:

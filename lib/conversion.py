@@ -2,9 +2,9 @@
 import os
 from pathlib import Path
 import subprocess
-from subtitles import beautify_srt, extract_srt, has_subtitles, remove_font_balise
-from utils import delete_mkv, get_file_name, get_subtitle_file, print_red
-from config import config
+from lib.subtitles import beautify_srt, extract_srt, has_subtitles, remove_font_balise
+from lib.utils import delete_mkv, get_file_name, get_subtitle_file, print_red
+from lib.config import config
 
 def convert_file(filename: str, subtitles: str) -> None:
     try:
