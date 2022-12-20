@@ -228,6 +228,14 @@ def process(filename: str, delete: bool) -> None:
             convert_file(filename, subtitle_file)
             if delete:
                 delete_mkv(filename)
+        except KeyboardInterrupt:
+            print_red("    ❌ Conversion cancelled")
+            mk4_filename = Path(get_file_name(filename) + "-mk4.mp4")
+            if os.path.exists(subtitle_file):
+                os.remove(subtitle_file)
+            if os.path.exists(mk4_filename):
+                os.remove(mk4_filename)
+            exit(1)
         except Exception as e:
             print_red("    ❌ Failed to process file: " + filename)
             print_red("    ❌ Error: " + str(e))
