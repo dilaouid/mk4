@@ -28,7 +28,12 @@ def extract_srt(filename: str, subtitle_file: str) -> None:
 
             # print the subtitles list
             for i, line in enumerate(subtitles):
-                print(f"            \033[33m{i}\033[0m: {line}")
+                parts = line.split(':')
+                language = parts[1].strip()
+                languages = language.split('(')
+                code = languages[1][:-1].upper()
+                stream = f"({code}): {parts[2]}: {parts[3]}"
+                print(f"            \033[33m{i}\033[0m: {stream}")
 
             # ask the user to select the subtitle
             while True:
