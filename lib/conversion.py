@@ -42,7 +42,7 @@ def convert_file(filename: str, subtitles: str) -> None:
             "-vf", "subtitles=" + subtitles,
             "-c:v", config['FFMPEG']["ENCODER"],
             "-pix_fmt", "yuv420p",
-            "-crf", config['FFMPEG']["CRF"],
+            *get_quality_options(),
             "-c:a", "aac",
             "-map", audio_track,
             "-map", "0:v:0",
@@ -58,6 +58,20 @@ def convert_file(filename: str, subtitles: str) -> None:
         print_red("    ❌ Failed to convert file: " + filename)
         print_red("    ❌ Error: " + str(e))
         exit(1)
+
+def get_quality_options() -> str:
+    codec = config['FFMPEG']["ENCODER"]
+    quality = config['FFMPEG']["CRF"]
+
+    if codec.endswith("nvenc"):
+        return ["-cq", quality]
+
+    if codec.endswith("amf"):
+        return f"-rc cqp -qp_p {quality} -qp_i {quality}"
+
+    # default, for 
+    return ["-crf", quality]
+
 
 # process to the conversion from mkv to mp4
 def process(filename: str, delete: bool) -> None:
