@@ -59,7 +59,7 @@ def convert_file(filename: str, subtitles: str) -> None:
         print_red("    ❌ Error: " + str(e))
         exit(1)
 
-def get_quality_options() -> str:
+def get_quality_options() -> list[str]:
     codec = config['FFMPEG']["ENCODER"]
     quality = config['FFMPEG']["CRF"]
 
@@ -67,7 +67,7 @@ def get_quality_options() -> str:
         return ["-cq", quality]
 
     if codec.endswith("amf"):
-        return f"-rc cqp -qp_p {quality} -qp_i {quality}"
+        return ["-rc", "cqp", "-qp_p", quality, "-qp_i", quality]
 
     # default, for 
     return ["-crf", quality]
