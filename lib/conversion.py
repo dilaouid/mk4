@@ -67,9 +67,13 @@ def get_quality_options() -> list[str]:
         return ["-cq", quality]
 
     if codec.endswith("amf"):
-        return ["-rc", "cqp", "-qp_p", quality, "-qp_i", quality]
+        return [
+            "-rc", "cqp",
+            "-qp_p", quality,
+            "-qp_i", quality
+        ]
 
-    # default, for 
+    # default
     return ["-crf", quality]
 
 
