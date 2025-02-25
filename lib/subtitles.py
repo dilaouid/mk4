@@ -9,7 +9,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 console = Console()
 
 # Check if the file has subtitles
-def has_subtitles(filename: str) -> None:
+def has_subtitles(filename: str) -> bool:
     console.print(f"    ⌛️ Checking if file: [yellow]{filename}[/yellow] has subtitles ...")
     result = subprocess.run(["ffmpeg", "-i", filename],
                             capture_output=True, text=True)
@@ -62,8 +62,6 @@ def extract_srt(filename: str, subtitle_file: str) -> None:
         subtitle_file
     ])
 
-
-
 # Beautify the srt file by adding font balises
 def beautify_srt(subtitle_file: str) -> None:
     with Progress(
@@ -92,7 +90,7 @@ def beautify_srt(subtitle_file: str) -> None:
                         line_num += 1
                     # format dialog with font balises
                     formatted_line = (
-                        f"<font size=\"{config['FONT']['Size']}\" face=\"{config['FONT']['Name']}\">"
+                        f"<font size=\"{config['FONT']['SIZE']}\" face=\"{config['FONT']['NAME']}\">"
                         f"{dialog}</font>\n\n"
                     )
                     formatted_lines.append(formatted_line)

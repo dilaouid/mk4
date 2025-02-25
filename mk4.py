@@ -1,35 +1,76 @@
-from pathlib import Path
-import shutil
+#!/usr/bin/env python3
+"""
+mk4 - MKV to MP4 converter with subtitle burning
+
+This script converts MKV files to MP4 format, burning subtitles into the video.
+You can choose the font and the size of the subtitles in the config file.
+And you can also select the correct subtitles and/or audio streams from the mkv file.
+"""
 import sys
 import os
+from pathlib import Path
 
-from lib.utils import print_red, print_error
+from lib.utils import logger, is_ffmpeg_installed, validate_mkv_file, find_mkv_files
 from lib.conversion import process_file
 
-from rich.console import Console
+def show_documentation():
+    """Display documentation and usage instructions"""
+    logger.info("""
+mk4 - I want it to be mp4
 
-console = Console()
+USAGE:
+  mk4.py <file.mkv | directory> [<file.mkv | directory> ...]
+  mk4.py --help
 
-def documentation() -> None:
-    console.print("Documentation: \n"
-                  "  Usage: mk4.py <file> [<file> ...] or mk4.py --help\n"
-                  "  Options:\n"
-                  "    -r    : Delete the original mkv after conversion\n"
-                  "  Ce script convertit un fichier mkv en mp4 en extrayant et en embellissant les sous-titres.")
+OPTIONS:
+  -r    : Delete the original mkv after conversion
+  --gui : Launch the graphical user interface
+
+This script converts MKV files to MP4 format, burning subtitles into the video.
+You can choose the font and the size of the subtitles in the config.ini file.
+
+EXAMPLES:
+  # Convert a single file
+  mk4.py movie.mkv
+  
+  # Convert a single file and delete the original
+  mk4.py movie.mkv -r
+  
+  # Convert all MKV files in a directory
+  mk4.py /path/to/videos/
+  
+  # Convert multiple files and directories
+  mk4.py movie1.mkv movie2.mkv /path/to/more/videos/
+    """)
     sys.exit(0)
 
-def main() -> int:
-    # check if ffmpeg is installed
-    if not shutil.which("ffmpeg"):
-        sys.exit(print_error("❌ Ffmpeg is not installed, please install it before using mk4.py"))
+def main():
+    """Main entry point for mk4 CLI"""
+    # Check if ffmpeg is installed
+    if not is_ffmpeg_installed():
+        logger.error("❌ Ffmpeg is not installed, please install it before using mk4.py")
+        sys.exit(1)
 
-    # check arguments
+    # Check arguments
     if len(sys.argv) < 2:
-        sys.exit(print_error("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
+        logger.error("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help")
+        sys.exit(1)
 
+    # Check for help flag
     if sys.argv[1] == "--help":
-        documentation()
+        show_documentation()
+    
+    # Check for GUI flag
+    if sys.argv[1] == "--gui":
+        try:
+            from lib.gui.app import run_gui
+            run_gui()
+            return 0
+        except ImportError:
+            logger.error("❌ GUI mode requires PyQt5. Please install it with: pip install PyQt5")
+            sys.exit(1)
 
+    # Process arguments
     args = sys.argv[1:]
     i = 0
     while i < len(args):
@@ -38,24 +79,29 @@ def main() -> int:
             i += 1
             continue
 
-        # delete file after conversion if -r flag is present
+        # Delete file after conversion if -r flag is present
         delete_after = (i + 1 < len(args) and args[i + 1] == "-r")
 
         if os.path.isdir(arg):
-            for root, dirs, files in os.walk(arg):
-                for file in files:
-                    if file.lower().endswith(".mkv"):
-                        file_path = os.path.join(root, file)
-                        console.print(f"Checking file: [yellow]{file}[/yellow] ...")
-                        process_file(file_path, delete_after)
+            # Process directory
+            mkv_files = find_mkv_files(arg)
+            if not mkv_files:
+                logger.warning(f"⚠️ No MKV files found in directory: {arg}")
+            
+            for file_path in mkv_files:
+                logger.info(f"Checking file: {file_path}")
+                process_file(file_path, delete_after)
         else:
+            # Process single file
             file_path = str(Path(arg))
-            console.print(f"Checking file: [yellow]{file_path}[/yellow] ...")
-            if not (os.path.exists(file_path) and os.path.isfile(file_path) and os.access(file_path, os.R_OK)):
-                sys.exit(print_error(f"❌ {file_path} does not exist or is not accessible"))
-            if not file_path.lower().endswith(".mkv"):
-                sys.exit(print_error(f"❌ {file_path} is not a mkv file"))
+            logger.info(f"Checking file: {file_path}")
+            
+            if not validate_mkv_file(file_path):
+                logger.error(f"❌ {file_path} does not exist, is not accessible, or is not an MKV file")
+                sys.exit(1)
+            
             process_file(file_path, delete_after)
+        
         i += 1
 
     return 0

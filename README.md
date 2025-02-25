@@ -4,39 +4,104 @@
 
 ## _I want it to be mp4_
 
-mk4 is a Python 3 script to convert mkv videos into mp4, and burning subtitles into the mp4 output. You can choose the font and the size of the subtitles in the config file. And you can also select the correct subtitles and/or audio streams from the mkv file.
+mk4 is a Python 3 tool to convert MKV videos into MP4, and burn subtitles into the MP4 output. You can choose the font and the size of the subtitles in the config file. And you can also select the correct subtitles and/or audio streams from the MKV file.
 
-## Usage
-### _Configuration_
-To configure the mk4 script, you need to edit the config variables in `config.ini`. You will be able to change the font name, the size, and the crf. Keeping the defaults values is enough to have a good experience.
+## Features
 
-### _Launch script_
-```sh
-py mk4.py <file.mkv | directory> [<file.mkv | directory> ...]
-```
+- Convert MKV videos to MP4 format
+- Burn subtitles directly into the video
+- Select specific subtitle and audio tracks
+- Customize subtitle font and size
+- Batch process multiple files
+- Both command-line and graphical interfaces
 
-OR
+## Screenshots
 
-```sh
-py mk4.py --help
-```
-
-You can also use the `-r` flag to delete the .mkv file (or files if it's a directory) you mentionned. Like this:
-```sh
-py mk4.py <file.mkv | directory> -r
-```
-
-It will delete only the one argument specified before the flag. So here:
-```sh
-py mk4.py movie.mkv -r episode.mkv
-```
-Only `movie.mkv` will be deleted after the conversion.
+![GUI Screenshot](https://example.com/screenshot.png)
 
 ## Prerequisites
-You only need to have ffmpeg installed in your system.
 
-## To-Do
+- Python 3.6+
+- FFmpeg installed in your system PATH
+- PyQt5 (for the GUI version): `pip install PyQt5`
 
-- The `--help` flag
+## Installation
 
-Please enjoy !!
+1. Clone the repository or download the source code
+2. Install PyQt5 if you want to use the GUI: `pip install PyQt5`
+3. Make sure FFmpeg is installed and available in your system PATH
+
+## Usage
+
+### Command-Line Interface
+
+```bash
+# Basic usage
+python mk4.py <file.mkv | directory> [<file.mkv | directory> ...]
+
+# Convert a single file
+python mk4.py movie.mkv
+
+# Convert a single file and delete the original
+python mk4.py movie.mkv -r
+
+# Convert all MKV files in a directory
+python mk4.py /path/to/videos/
+
+# Show help
+python mk4.py --help
+```
+
+### Graphical User Interface
+
+```bash
+# Launch the GUI
+python mk4_gui.py
+
+# Or from the CLI script
+python mk4.py --gui
+```
+
+## GUI Features
+
+- Drag and drop MKV files for conversion
+- Select output directory
+- Choose subtitle and audio tracks
+- Configure encoding settings
+- Real-time conversion progress
+- Light and dark themes
+
+## Configuration
+
+You can configure mk4 through the GUI Settings tab or by editing the `config.ini` file directly:
+
+```ini
+[FFMPEG]
+encoder = libx264
+crf = 23
+ENCODER = libx264
+CRF = 23
+
+[FONT]
+size = 24
+name = Arial
+SIZE = 24
+NAME = Arial
+
+[GUI]
+theme = dark
+language = en
+autodeletemkv = False
+THEME = dark
+LANGUAGE = en
+AUTODELETEMKV = False
+```
+
+### Configuration Options
+
+- **ENCODER**: Video encoder to use (libx264, libx265, h264_nvenc, etc.)
+- **CRF**: Constant Rate Factor (0-51, lower is better quality)
+- **Size**: Font size for subtitles
+- **Name**: Font name for subtitles
+- **Theme**: GUI theme (light or dark)
+- **AutoDeleteMKV**: Whether to automatically delete MKV files after conversion
