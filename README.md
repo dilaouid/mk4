@@ -1,6 +1,6 @@
 # mk4
 
-![preview](https://pbs.twimg.com/media/FkISQIGWYAYLWpC?format=jpg&name=large)
+![preview](https://github.com/dilaouid/mk4/blob/media/example.jpg?raw=true)
 
 ## _I want it to be mp4_
 
@@ -17,7 +17,7 @@ mk4 is a Python 3 tool to convert MKV videos into MP4, and burn subtitles into t
 
 ## Screenshots
 
-![GUI Screenshot](https://example.com/screenshot.png)
+![GUI Screenshot](https://github.com/dilaouid/mk4/blob/media/gui.jpg?raw=true)
 
 ## Prerequisites
 
