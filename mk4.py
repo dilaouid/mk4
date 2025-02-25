@@ -2,61 +2,62 @@ from pathlib import Path
 import shutil
 import sys
 import os
-from lib.utils import print_red
-from lib.conversion import process
+
+from lib.utils import print_red, print_error
+from lib.conversion import process_file
+
+from rich.console import Console
+
+console = Console()
 
 def documentation() -> None:
-    print("documentation todo :) :) :) :) :) ;)")
+    console.print("Documentation: \n"
+                  "  Usage: mk4.py <file> [<file> ...] or mk4.py --help\n"
+                  "  Options:\n"
+                  "    -r    : Delete the original mkv after conversion\n"
+                  "  Ce script convertit un fichier mkv en mp4 en extrayant et en embellissant les sous-titres.")
+    sys.exit(0)
 
 def main() -> int:
-
     # check if ffmpeg is installed
     if not shutil.which("ffmpeg"):
-        sys.exit(print_red("❌ Ffmpeg is not installed, please install it before using mk4.py"))
+        sys.exit(print_error("❌ Ffmpeg is not installed, please install it before using mk4.py"))
 
-    # check if the user has passed a file
+    # check arguments
     if len(sys.argv) < 2:
-        sys.exit(print_red("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
+        sys.exit(print_error("❌ Usage: mk4.py <file> [<file> ...] or mk4.py --help"))
 
-    # check if the user has passed the --help flag
     if sys.argv[1] == "--help":
-        sys.exit(documentation())
+        documentation()
 
-    for i in range(1, len(sys.argv)):
-
-        # if the argument is a -r flag, ignore it
-        if sys.argv[i] == "-r":
+    args = sys.argv[1:]
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "-r":
+            i += 1
             continue
 
-        try:
-            # check if the next argument is a -r
-            delete = i + 1 < len(sys.argv) and sys.argv[i + 1] == "-r"
-         
-            # if the argument is a directory, recursively check all the mkv files in the directory
-            if os.path.isdir(sys.argv[i]):
-                for root, dirs, files in os.walk(sys.argv[i]):
-                    for file in files:
-                        if (file.endswith(".mkv") or file.endswith(".MKV")):
-                            print("Checking file: " + file + " ...")
-                            process(os.path.join(root, file), delete)
-            # otherwise, the argument is a file, so check if it is a valid mkv file and process it
-            else:
-                filename = str(Path(sys.argv[i]))
-                print("Checking file: " + filename + " ...")
+        # delete file after conversion if -r flag is present
+        delete_after = (i + 1 < len(args) and args[i + 1] == "-r")
 
-                # check if the file exists
-                if not os.path.exists(filename) or not os.path.isfile(filename) or not os.access(filename, os.R_OK):
-                    sys.exit(print_red("❌ "+filename+" does not exist"))
+        if os.path.isdir(arg):
+            for root, dirs, files in os.walk(arg):
+                for file in files:
+                    if file.lower().endswith(".mkv"):
+                        file_path = os.path.join(root, file)
+                        console.print(f"Checking file: [yellow]{file}[/yellow] ...")
+                        process_file(file_path, delete_after)
+        else:
+            file_path = str(Path(arg))
+            console.print(f"Checking file: [yellow]{file_path}[/yellow] ...")
+            if not (os.path.exists(file_path) and os.path.isfile(file_path) and os.access(file_path, os.R_OK)):
+                sys.exit(print_error(f"❌ {file_path} does not exist or is not accessible"))
+            if not file_path.lower().endswith(".mkv"):
+                sys.exit(print_error(f"❌ {file_path} is not a mkv file"))
+            process_file(file_path, delete_after)
+        i += 1
 
-                # check if the file is a mkv file
-                if not filename.endswith(".mkv") and not filename.endswith(".MKV"):
-                    sys.exit(print_red("❌ "+filename+" is not a mkv file"))
-
-                process(filename, delete)
-        except Exception as e:
-            print_red("❌ Failed to process file: " + sys.argv[i])
-            print_red("❌ Error: " + str(e))
-            exit(1)
     return 0
 
 if __name__ == '__main__':
