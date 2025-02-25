@@ -38,13 +38,30 @@ def time_str_to_seconds(time_str: str) -> float:
         return hours * 3600 + minutes * 60 + seconds
     except Exception:
         return 0.0
+      
+def get_quality_options() -> list[str]:
+    codec = config['FFMPEG']["ENCODER"]
+    quality = config['FFMPEG']["CRF"]
+
+    if codec.endswith("nvenc"):
+        return ["-cq", quality]
+
+    if codec.endswith("amf"):
+        return [
+            "-rc", "cqp",
+            "-qp_p", quality,
+            "-qp_i", quality
+        ]
+
+    # default
+    return ["-crf", quality]
 
 def convert_file(filename: str, subtitles: str) -> None:
     # get the duration of the video for the progress bar
     duration = get_video_duration(filename)
     if duration == 0:
-        console.print("[red]Impossible de déterminer la durée de la vidéo. La barre de progression pourrait être incorrecte.[/red]")
-        duration = 1  # Pour éviter la division par zéro
+        console.print("[red]Impossible to get the video duration. The progress bar may be incorrect.[/red]")
+        duration = 1
 
     console.print(f"    ⌛️ Converting file: [yellow]{filename}[/yellow] to mp4 ...")
 
@@ -71,21 +88,26 @@ def convert_file(filename: str, subtitles: str) -> None:
         audio_track = "0:a:0"
 
     output = Path(get_file_name(filename) + "-mk4.mp4")
-    ffmpeg_cmd = [
+    subprocess.run([
         "ffmpeg",
         "-y",
         "-hide_banner",
+        "-v", "error",
+        "-stats",
         "-i", str(filename),
         "-vf", "subtitles=" + subtitles,
         "-c:v", config['FFMPEG']["ENCODER"],
         "-pix_fmt", "yuv420p",
-        "-crf", config['FFMPEG']["CRF"],
+        *get_quality_options(),
         "-c:a", "aac",
         "-map", audio_track,
         "-map", "0:v:0",
-        str(output),
-        "-progress", "pipe:1"
-    ]
+
+        # keeping the below lines only for dev mode. please keep them commented
+        # "-ss", "00:00:00",
+        # "-to", "00:00:20",
+        str(output)
+    ])
 
     process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, universal_newlines=True)
 
@@ -115,6 +137,23 @@ def convert_file(filename: str, subtitles: str) -> None:
     process.wait()
     os.remove(subtitles)
     console.print(f"    ✅ File: [yellow]{filename}[/yellow] has been converted")
+
+def get_quality_options() -> list[str]:
+    codec = config['FFMPEG']["ENCODER"]
+    quality = config['FFMPEG']["CRF"]
+
+    if codec.endswith("nvenc"):
+        return ["-cq", quality]
+
+    if codec.endswith("amf"):
+        return [
+            "-rc", "cqp",
+            "-qp_p", quality,
+            "-qp_i", quality
+        ]
+
+    # default
+    return ["-crf", quality]
 
 
 # process to the conversion from mkv to mp4
