@@ -136,9 +136,9 @@ class Mk4GuiApp(QMainWindow):
             <p><em>Convert your MKV videos into MP4 effortlessly</em></p>
             <p><strong>mk4</strong> is a tool to convert MKV videos into MP4, embedding subtitles into the output file.</p>
             <p>You can customize the subtitle font and size in the settings tab.</p>
-            <p><strong>Author:</strong> <a href='https://github.com/dilaouid/'>dilaouid</a></p>
+            <p><strong>Authors:</strong> <a href='https://github.com/dilaouid/'>dilaouid</a>, <a href='https://github.com/Dastan21'>Dastan21</a></p>
             <p><strong>License:</strong> MIT</p>
-            <p><strong>Version:</strong> 1.0.0</p>
+            <p><strong>Version:</strong> 1.1.0</p>
             <p><strong>Source Code:</strong> <a href='https://github.com/dilaouid/mk4'>GitHub</a></p>
             <p><strong>Dependencies:</strong> PyQt5, ffmpeg (must be installed and in system PATH)</p>
             """
