@@ -1,4 +1,7 @@
 import os
+from rich.console import Console
+
+console = Console()
 
 def print_red(text: str) -> None:
     print(f"\033[31m{text}\033[0m")
@@ -13,13 +16,17 @@ def get_subtitle_file() -> str:
 
 # manage the -r flag
 def delete_mkv(filename: str) -> None:
-    print(f"    ⌛️ Deleting: \033[33m" + filename + "\033[0m ...")
+    console.print(f"    ⌛️ Deleting: [yellow]{filename}[/yellow] ...")
     try:
         # delete the file if it's a valid mkv file
         if os.path.isfile(filename) and (filename.endswith(".mkv") or filename.endswith(".MKV")):
             os.remove(filename)
-            print(f"    🗑️ \033[33m" + filename + "\033[0m has been deleted!")
+            console.print(f"    🗑️ [yellow]{filename}[/yellow] has been deleted!")
     except Exception as e:
-        print_red("❌ Failed to delete file: " + filename)
-        print_red("❌ Error: " + str(e))
+        print_error(f"❌ Failed to delete file: {filename}")
+        print_error(f"❌ Error: {str(e)}")
         exit(1)
+
+# print error message and exit
+def print_error(message: str) -> None:
+    console.print(f"[red]{message}[/red]")
