@@ -88,7 +88,7 @@ def convert_file(filename: str, subtitles: str) -> None:
         audio_track = "0:a:0"
 
     output = Path(get_file_name(filename) + "-mk4.mp4")
-    ffmpeg_cmd = subprocess.run([
+    ffmpeg_cmd = [
         "ffmpeg",
         "-y",
         "-hide_banner",
@@ -107,7 +107,7 @@ def convert_file(filename: str, subtitles: str) -> None:
         # "-ss", "00:00:00",
         # "-to", "00:00:20",
         str(output)
-    ])
+    ]
 
     process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, universal_newlines=True)
 
